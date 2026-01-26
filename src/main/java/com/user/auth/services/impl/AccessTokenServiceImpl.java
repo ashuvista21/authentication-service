@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.user.auth.entities.AccessToken;
 import com.user.auth.entities.Session;
+import com.user.auth.exceptions.auth.InvalidTokenIdentifierException;
 import com.user.auth.repositories.AccessTokenRepository;
 import com.user.auth.services.AccessTokenService;
 
@@ -68,7 +69,7 @@ public class AccessTokenServiceImpl implements AccessTokenService {
 	@Override
 	public AccessToken getAccessTokenBySession(UUID sid) {
 		return accessTokenRepository.findBySidAndRevokedAtIsNull(sid)
-				.orElseThrow(() -> new IllegalStateException("Inavlid Session")) ;
+				.orElseThrow(() -> new InvalidTokenIdentifierException ("Inavlid Session")) ;
 	}
 
 }

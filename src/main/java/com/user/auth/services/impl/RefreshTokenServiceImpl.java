@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.user.auth.entities.RefreshToken;
 import com.user.auth.entities.Session;
 import com.user.auth.exceptions.auth.InvalidTokenException;
+import com.user.auth.exceptions.auth.InvalidTokenIdentifierException;
 import com.user.auth.repositories.RefreshTokenRepository;
 import com.user.auth.services.RefreshTokenService;
 
@@ -31,7 +32,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         // Reuse attack detection
         if (refreshToken.getRevokedAt() != null || refreshToken.getExpiresAt().isBefore(now)) {
-            throw new IllegalStateException("Refresh token reuse detected");
+            throw new InvalidTokenIdentifierException("Refresh token reuse detected") ;
         }
         
         refreshToken.revoke() ;
@@ -70,7 +71,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 		                .build();
 
 		            return refreshTokenRepository.save(rt) ;
-		        });
+		        }) ;
 	}
 
 	@Override

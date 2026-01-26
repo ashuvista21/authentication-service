@@ -45,9 +45,6 @@ public class AuthController {
     	else if(request.getGrantType().equals(GrantTypes.REFRESH_TOKEN)) {
     		validator.validate(request, RefreshTokenFlow.class) ;
     	}
-    	else {
-    		throw new IllegalArgumentException("Unsupported grant type: " + request.getGrantType()) ;
-    	}
     	
         Pair<String, String> tokens = authService.login(request, jwtProperties.algorithm()) ;
         

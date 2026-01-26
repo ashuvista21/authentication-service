@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.user.auth.entities.Session;
+import com.user.auth.exceptions.auth.InvalidTokenIdentifierException;
+import com.user.auth.exceptions.auth.MaximumLimitReachedException;
 import com.user.auth.repositories.SessionRepository;
 import com.user.auth.services.AccessTokenService;
 import com.user.auth.services.RefreshTokenService;
@@ -43,7 +45,7 @@ public class SessionServiceImpl implements SessionService {
 		// 2️⃣ Enforce max active sessions (after revocation)
 	    long activeSessions = sessionRepository.countActiveSessions(userId);
 	    if (activeSessions >= MAX_ACTIVE_SESSIONS) {
-	        throw new IllegalStateException(
+	        throw new MaximumLimitReachedException(
 	            "Maximum number of active logins reached (" + MAX_ACTIVE_SESSIONS + ")"
 	        ) ;
 	    }
@@ -91,7 +93,7 @@ public class SessionServiceImpl implements SessionService {
     public Session findActiveSession(UUID sid) {
         return sessionRepository.findById(sid)
             .filter(s -> s.getRevokedAt() == null)
-            .orElseThrow(() -> new IllegalStateException("Session expired"));
+            .orElseThrow(() -> new InvalidTokenIdentifierException("Session expired")) ;
     }
 
 }

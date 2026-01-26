@@ -24,6 +24,7 @@ import com.user.auth.entities.GrantTypes;
 import com.user.auth.entities.RefreshToken;
 import com.user.auth.entities.Session;
 import com.user.auth.exceptions.auth.DeviceMismatchException;
+import com.user.auth.exceptions.auth.InvalidRequestPayloadException;
 import com.user.auth.security.authentication.jwt.JwtMetadata;
 import com.user.auth.security.authentication.jwt.JwtServiceFactory;
 import com.user.auth.security.authentication.jwt.contract.JwtAlgorithm;
@@ -68,7 +69,7 @@ public class AuthService {
     		return loginWithRefreshToken(request, alg) ;
     	}
     	
-    	throw new IllegalArgumentException("Unsupported grant type: " + request.getGrantType()) ;    
+    	throw new InvalidRequestPayloadException("Unsupported grant type: " + request.getGrantType()) ;    
     }
     
     private Pair<String, String> loginWithPassword(LoginRequest request, String alg) {
@@ -169,7 +170,7 @@ public class AuthService {
     		return sessionService.revokeAllUserSession(userId) ;
     	}
     	else {
-    		throw new IllegalArgumentException("Inavlid scope parameter") ;
+    		throw new InvalidRequestPayloadException("Inavlid scope parameter") ;
     	}
     	
     	return 1 ;

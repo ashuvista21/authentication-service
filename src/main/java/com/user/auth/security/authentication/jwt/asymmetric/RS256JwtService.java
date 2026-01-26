@@ -55,7 +55,7 @@ public class RS256JwtService implements TokenGenerator, PublicKeyProvider, Token
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(privateKey, SignatureAlgorithm.RS256) // ✅ signed with private key
-                .compact();
+                .compact() ;
 	}
 	
 	@Override

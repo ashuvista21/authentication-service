@@ -69,7 +69,7 @@ public class OTPServiceImpl implements OTPService {
 		UUID userId = UUID.fromString(userDetails.getUuid()) ;
 		
 		OTP otpEntity = otpRepository.findTopByUserIdAndPurposeAndVerifiedAtIsNullOrderByCreatedAtDesc(userId, purpose)
-			.orElseThrow(() -> new IllegalStateException("OTP not found")) ;
+			.orElseThrow(() -> new InvalidOtpException("OTP not found")) ;
 		
 		if (otpEntity.isExpired()) {
 		    throw new OtpExpiredException("OTP expired") ; //410
