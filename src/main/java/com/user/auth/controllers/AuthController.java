@@ -2,6 +2,7 @@ package com.user.auth.controllers;
 
 import java.util.Arrays;
 
+import org.springframework.data.util.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,13 +18,11 @@ import com.user.auth.dtos.JwkSet;
 import com.user.auth.dtos.JwtResponse;
 import com.user.auth.dtos.LoginRequest;
 import com.user.auth.entities.GrantTypes;
+import com.user.auth.security.authentication.jwt.contract.TokenClaims;
 import com.user.auth.security.authentication.service.AuthService;
 import com.user.auth.validation.PasswordFlow;
 import com.user.auth.validation.RefreshTokenFlow;
 
-import org.springframework.data.util.Pair;
-
-import io.jsonwebtoken.Claims;
 import jakarta.validation.Valid;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
@@ -62,11 +61,11 @@ public class AuthController {
     }
 
     @GetMapping("/validate-token")
-    public ResponseEntity<ApiResponse<Claims>> validateToken(@RequestParam String token) {
+    public ResponseEntity<ApiResponse<TokenClaims>> validateToken(@RequestParam String token) {
         boolean isValid = authService.verifyToken(token);
 
         if (isValid) {
-            return ResponseEntity.ok(ApiResponse.<Claims>builder()
+            return ResponseEntity.ok(ApiResponse.<TokenClaims>builder()
                     .success(true)
                     .status(HttpStatus.OK)
                     .message(Arrays.asList("Token is valid"))
@@ -74,7 +73,7 @@ public class AuthController {
                     .build());
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.<Claims>builder()
+                    .body(ApiResponse.<TokenClaims>builder()
                             .success(false)
                             .status(HttpStatus.UNAUTHORIZED)
                             .message(Arrays.asList("Invalid or expired token"))

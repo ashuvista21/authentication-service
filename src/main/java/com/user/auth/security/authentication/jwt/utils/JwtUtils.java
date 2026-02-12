@@ -14,26 +14,11 @@ import com.user.auth.dtos.Jwk;
 import com.user.auth.security.authentication.jwt.JwtHeader;
 import com.user.auth.security.authentication.jwt.JwtMetadata;
 import com.user.auth.security.authentication.jwt.contract.JwtAlgorithm;
-import com.user.auth.security.authentication.jwt.contract.JwtAlgorithms;
 
 public class JwtUtils {
 	
 	private static Supplier<String> getUuid = () -> UUID.randomUUID().toString() ;
     private static final ObjectMapper MAPPER = new ObjectMapper();
-	
-	public static JwtAlgorithms extractAlgorithm(String token) {
-		String[] parts = token.split("\\.");
-        String headerJson = new String(Base64.getUrlDecoder().decode(parts[0])) ;
-        ObjectMapper mapper = new ObjectMapper() ;
-        try {
-            JwtHeader header = mapper.readValue(headerJson, JwtHeader.class) ;
-            return JwtAlgorithms.valueOf(header.getAlg()) ; // 🔑 convert String to Enum
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Invalid JWT header", e);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unsupported JWT algorithm: " + e.getMessage(), e);
-        }
-	}
 	
 	public static JwtAlgorithm extractAlgorithmFamily(String token) {
 		String[] parts = token.split("\\.");

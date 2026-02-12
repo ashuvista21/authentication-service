@@ -59,7 +59,7 @@ public class SymmtericJwtAuthenticationFilter extends OncePerRequestFilter imple
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-            if (tokenValidator.isTokenValid(jwt, userDetails)) {
+            if (tokenValidator.isTokenValid(jwt)) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 userDetails,

@@ -9,6 +9,8 @@ import com.user.auth.security.authentication.jwt.contract.TokenGenerator;
 import com.user.auth.security.authentication.jwt.contract.TokenMetadataValidator;
 import com.user.auth.security.authentication.jwt.contract.TokenParser;
 import com.user.auth.security.authentication.jwt.contract.TokenValidator;
+import com.user.auth.security.authentication.jwt.contract.adapter.AsymmetricTokenParserAdapter;
+import com.user.auth.security.authentication.jwt.contract.adapter.AsymmetricTokenValidatorAdapter;
 import com.user.auth.security.authentication.jwt.symmetric.HS256JwtService;
 
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,8 @@ public class JwtServiceFactory {
     
     private final HS256JwtService hs256JwtService ;
     private final RS256JwtService rs256JwtService ;
+    private final AsymmetricTokenParserAdapter parserAdapter ;
+    private final AsymmetricTokenValidatorAdapter validatorAdapter ;
 
     public TokenGenerator getTokenGenerator(JwtAlgorithm algorithm) {
         return switch (algorithm) {
@@ -31,6 +35,7 @@ public class JwtServiceFactory {
     public TokenParser getTokenParser(JwtAlgorithm algorithm) {
         return switch (algorithm) {
             case HS256 -> hs256JwtService ;
+            case RS256 -> parserAdapter ;
             default -> throw new IllegalArgumentException("Unsupported algorithm: " + algorithm) ;
         } ;
     }
@@ -38,6 +43,7 @@ public class JwtServiceFactory {
     public TokenValidator getTokenValidator(JwtAlgorithm algorithm) {
         return switch (algorithm) {
             case HS256 -> hs256JwtService ;
+            case RS256 -> validatorAdapter ;
             default -> throw new IllegalArgumentException("Unsupported algorithm: " + algorithm) ;
         } ;
     }

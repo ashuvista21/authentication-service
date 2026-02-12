@@ -23,6 +23,8 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.user.auth.dtos.ApiResponse;
 
+import validator.exceptions.JwtValidationException;
+
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -105,6 +107,20 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
     	//return buildResponse("Invalid request payload: " + ex.getMostSpecificCause().getMessage(), HttpStatus.BAD_REQUEST) ;
     	return buildResponse("Invalid Request Payload", HttpStatus.BAD_REQUEST) ;
+    }
+    
+    @ExceptionHandler(JwtValidationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleKafkaErrors(JwtValidationException ex) {
+    	
+    	HttpStatus status = switch (ex.getErrorCode()) {
+    		case EXPIRED -> HttpStatus.UNAUTHORIZED ;
+    		case INVALID_SIGNATURE -> HttpStatus.UNAUTHORIZED ;
+    		case NOT_YET_VALID -> HttpStatus.UNAUTHORIZED ;
+    		case MALFORMED -> HttpStatus.UNAUTHORIZED ;
+    		default -> HttpStatus.UNAUTHORIZED ;
+    	} ;
+    	
+    	return buildResponse("Unexpected error: " + ex.getMessage(), status) ;
     }
     
     @ExceptionHandler(KafkaException.class)

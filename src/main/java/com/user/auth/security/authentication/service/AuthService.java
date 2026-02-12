@@ -3,7 +3,6 @@ package com.user.auth.security.authentication.service;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Function;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.util.Pair;
@@ -25,12 +24,11 @@ import com.user.auth.entities.RefreshToken;
 import com.user.auth.entities.Session;
 import com.user.auth.exceptions.auth.DeviceMismatchException;
 import com.user.auth.exceptions.auth.InvalidRequestPayloadException;
-import com.user.auth.security.authentication.jwt.JwtMetadata;
 import com.user.auth.security.authentication.jwt.JwtServiceFactory;
 import com.user.auth.security.authentication.jwt.contract.JwtAlgorithm;
 import com.user.auth.security.authentication.jwt.contract.PublicKeyProvider;
+import com.user.auth.security.authentication.jwt.contract.TokenClaims;
 import com.user.auth.security.authentication.jwt.contract.TokenGenerator;
-import com.user.auth.security.authentication.jwt.contract.TokenMetadataValidator;
 import com.user.auth.security.authentication.jwt.contract.TokenParser;
 import com.user.auth.security.authentication.jwt.contract.TokenValidator;
 import com.user.auth.security.authentication.jwt.utils.JwtUtils;
@@ -40,7 +38,6 @@ import com.user.auth.services.AccessTokenService;
 import com.user.auth.services.RefreshTokenService;
 import com.user.auth.services.SessionService;
 
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -178,25 +175,14 @@ public class AuthService {
 
     public boolean verifyToken(String token) {
     	JwtAlgorithm alg = JwtUtils.extractAlgorithmFamily(token) ;
-    	
-    	if(alg.family().equals(JwtAlgorithm.Family.ASYMMETRIC)) {
-    		TokenMetadataValidator tokenMetadataValidator = jwtServiceFactory.getTokenMetadataValidator(alg) ;
-    		JwtMetadata jwtMetadata = JwtUtils.extractMetadataFromJWTToken(token) ;
-    		return tokenMetadataValidator.validateTokenMetadata(jwtMetadata.jti(), jwtMetadata.sid()) ;
-    	}
-    	
-    	if(alg.family().equals(JwtAlgorithm.Family.SYMMETRIC)) {
-    		TokenValidator tokenValidator = jwtServiceFactory.getTokenValidator(alg) ;
-        	return tokenValidator.validateTokenSignature(token) ;
-    	}
-        
-    	return false ;
+    	TokenValidator tokenValidator = jwtServiceFactory.getTokenValidator(alg) ;
+        return tokenValidator.validateTokenSignature(token) ;
     }
     
-    public Claims getClaims(String token) {
+    public TokenClaims getClaims(String token) {
     	JwtAlgorithm alg = JwtUtils.extractAlgorithmFamily(token) ;
-        TokenParser tokenParser = jwtServiceFactory.getTokenParser(alg); 
-    	return tokenParser.extractClaim(token, Function.identity()) ;
+    	TokenParser tokenParser = jwtServiceFactory.getTokenParser(alg) ;
+    	return tokenParser.extractClaim(token) ;
     }
     
     public JwkSet getRSAPublicKey(String alg) {

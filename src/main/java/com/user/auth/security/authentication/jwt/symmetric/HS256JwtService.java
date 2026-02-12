@@ -3,7 +3,6 @@ package com.user.auth.security.authentication.jwt.symmetric;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
@@ -11,9 +10,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.user.auth.security.authentication.jwt.contract.TokenClaims;
 import com.user.auth.security.authentication.jwt.contract.TokenGenerator;
 import com.user.auth.security.authentication.jwt.contract.TokenParser;
 import com.user.auth.security.authentication.jwt.contract.TokenValidator;
+import com.user.auth.security.authentication.jwt.contract.adapter.JjwtClaimsAdapter;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
@@ -35,9 +36,8 @@ public class HS256JwtService implements TokenGenerator, TokenParser, TokenValida
     }
 
 	@Override
-	public boolean isTokenValid(String token, UserDetails userDetails) {
-		final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token) ;
+	public boolean isTokenValid(String token) {
+        return !isTokenExpired(token) ;
 	}
 
 	@Override
@@ -54,14 +54,14 @@ public class HS256JwtService implements TokenGenerator, TokenParser, TokenValida
 	}
 
 	@Override
-	public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-		final Claims claims = extractAllClaims(token) ;
-        return claimsResolver.apply(claims) ;
+	public TokenClaims extractClaim(String token) {
+		Claims claims = extractAllClaims(token) ;
+		return new JjwtClaimsAdapter(claims) ;
 	}
 
 	@Override
 	public String extractUsername(String token) {
-		return extractClaim(token, Claims::getSubject) ;
+		return extractClaim(token).getSubject() ;
 	}
 
 	@Override
@@ -97,6 +97,6 @@ public class HS256JwtService implements TokenGenerator, TokenParser, TokenValida
     }
 	
 	private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+        return extractClaim(token).getExpiration() ;
     }
 }
