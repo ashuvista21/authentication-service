@@ -6,7 +6,6 @@ import com.user.auth.security.authentication.jwt.asymmetric.RS256JwtService;
 import com.user.auth.security.authentication.jwt.contract.JwtAlgorithm;
 import com.user.auth.security.authentication.jwt.contract.PublicKeyProvider;
 import com.user.auth.security.authentication.jwt.contract.TokenGenerator;
-import com.user.auth.security.authentication.jwt.contract.TokenMetadataValidator;
 import com.user.auth.security.authentication.jwt.contract.TokenParser;
 import com.user.auth.security.authentication.jwt.contract.TokenValidator;
 import com.user.auth.security.authentication.jwt.contract.adapter.AsymmetricTokenParserAdapter;
@@ -46,13 +45,6 @@ public class JwtServiceFactory {
             case RS256 -> validatorAdapter ;
             default -> throw new IllegalArgumentException("Unsupported algorithm: " + algorithm) ;
         } ;
-    }
-    
-    public TokenMetadataValidator getTokenMetadataValidator(JwtAlgorithm algorithm) {
-    	return switch(algorithm) {
-    		case RS256 -> rs256JwtService ;
-    		default -> throw new IllegalArgumentException("Unsupported algorithm: " + algorithm) ;
-    	} ;
     }
     
     public PublicKeyProvider getPublicKeyProvider(JwtAlgorithm algorithm) {

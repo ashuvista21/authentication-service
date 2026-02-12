@@ -82,4 +82,11 @@ public class JwtUtils {
             throw new IllegalArgumentException("Failed to extract JWT metadata", ex);
         }
     }
+    
+    public static String extractTokenFromHeader(String header) {
+        if (header == null || !header.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Missing or invalid Authorization header") ;
+        }
+        return header.substring(7) ;
+    }
 }

@@ -6,7 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,10 +13,8 @@ import org.springframework.stereotype.Service;
 
 import com.user.auth.dtos.Jwk;
 import com.user.auth.dtos.JwkSet;
-import com.user.auth.entities.AccessToken;
 import com.user.auth.security.authentication.jwt.contract.PublicKeyProvider;
 import com.user.auth.security.authentication.jwt.contract.TokenGenerator;
-import com.user.auth.security.authentication.jwt.contract.TokenMetadataValidator;
 import com.user.auth.security.authentication.jwt.utils.JwtUtils;
 import com.user.auth.services.AccessTokenService;
 import com.user.auth.services.SessionService;
@@ -28,7 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class RS256JwtService implements TokenGenerator, PublicKeyProvider, TokenMetadataValidator {
+public class RS256JwtService implements TokenGenerator, PublicKeyProvider {
 	
 	private final PrivateKey privateKey ;
 	private final RSAPublicKey publicKey ;
@@ -64,15 +61,16 @@ public class RS256JwtService implements TokenGenerator, PublicKeyProvider, Token
 		return new JwkSet(List.of(jwk)) ;
 	}
 
-	@Override
-	public boolean validateTokenMetadata(String jti, String sid) {
-		
-		UUID sessionID = UUID.fromString(sid) ;
-		
-		sessionService.findActiveSession(sessionID) ;
-		
-		AccessToken accessToken = accessTokenService.getAccessTokenBySession(sessionID) ;
-		
-		return accessToken.getJti().toString().equals(jti) ;
-	}
+	/*
+	 * @Override public boolean validateTokenMetadata(String jti, String sid) {
+	 * 
+	 * UUID sessionID = UUID.fromString(sid) ;
+	 * 
+	 * sessionService.findActiveSession(sessionID) ;
+	 * 
+	 * AccessToken accessToken =
+	 * accessTokenService.getAccessTokenBySession(sessionID) ;
+	 * 
+	 * return accessToken.getJti().toString().equals(jti) ; }
+	 */
 }

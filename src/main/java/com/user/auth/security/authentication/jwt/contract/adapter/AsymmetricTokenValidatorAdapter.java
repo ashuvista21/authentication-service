@@ -21,5 +21,4 @@ public class AsymmetricTokenValidatorAdapter implements TokenValidator {
 	public boolean validateTokenSignature(String token) {
 		return delegate.validateTokenSignature(token) ;
 	}
-
 }
