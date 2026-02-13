@@ -16,8 +16,6 @@ import com.user.auth.dtos.JwkSet;
 import com.user.auth.security.authentication.jwt.contract.PublicKeyProvider;
 import com.user.auth.security.authentication.jwt.contract.TokenGenerator;
 import com.user.auth.security.authentication.jwt.utils.JwtUtils;
-import com.user.auth.services.AccessTokenService;
-import com.user.auth.services.SessionService;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -31,9 +29,6 @@ public class RS256JwtService implements TokenGenerator, PublicKeyProvider {
 	private final RSAPublicKey publicKey ;
 	
 	private static final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
-	
-	private final SessionService sessionService ;
-	private final AccessTokenService accessTokenService ;
 
 	@Override
 	public String generateToken(Map<String, Object> headers, UserDetails userDetails) {
@@ -60,17 +55,4 @@ public class RS256JwtService implements TokenGenerator, PublicKeyProvider {
 		Jwk jwk = JwtUtils.fromRsaPublicKey(publicKey, "RS256", "my-key-id-1") ;
 		return new JwkSet(List.of(jwk)) ;
 	}
-
-	/*
-	 * @Override public boolean validateTokenMetadata(String jti, String sid) {
-	 * 
-	 * UUID sessionID = UUID.fromString(sid) ;
-	 * 
-	 * sessionService.findActiveSession(sessionID) ;
-	 * 
-	 * AccessToken accessToken =
-	 * accessTokenService.getAccessTokenBySession(sessionID) ;
-	 * 
-	 * return accessToken.getJti().toString().equals(jti) ; }
-	 */
 }

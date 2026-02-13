@@ -1,5 +1,6 @@
 package com.user.auth.security.authentication.service;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
@@ -31,7 +32,7 @@ public class TokenIntrospectionService {
             // 1 Validate expiry
             Date expiration = signedJWT.getJWTClaimsSet().getExpirationTime() ;
             if (expiration.before(new Date())) {
-                return false ;
+            	return false ;
             }
 
             // 2 Extract claims
@@ -49,6 +50,8 @@ public class TokenIntrospectionService {
             AccessToken accessToken = accessTokenService.getAccessTokenBySession(UUID.fromString(sid)) ;
             
             if (accessToken == null) return false ;
+            if (accessToken.getRevokedAt() != null) return false ;
+            if (accessToken.getExpiresAt().isBefore(Instant.now())) return false ;
             if (!accessToken.getJti().equals(UUID.fromString(jti))) return false ;
             
             // 5 Fetch user and validate

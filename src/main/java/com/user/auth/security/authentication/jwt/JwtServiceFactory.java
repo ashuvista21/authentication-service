@@ -2,14 +2,14 @@ package com.user.auth.security.authentication.jwt;
 
 import org.springframework.stereotype.Component;
 
+import com.user.auth.security.authentication.jwt.adapter.AsymmetricTokenParserAdapter;
+import com.user.auth.security.authentication.jwt.adapter.AsymmetricTokenValidatorAdapter;
 import com.user.auth.security.authentication.jwt.asymmetric.RS256JwtService;
 import com.user.auth.security.authentication.jwt.contract.JwtAlgorithm;
 import com.user.auth.security.authentication.jwt.contract.PublicKeyProvider;
 import com.user.auth.security.authentication.jwt.contract.TokenGenerator;
 import com.user.auth.security.authentication.jwt.contract.TokenParser;
 import com.user.auth.security.authentication.jwt.contract.TokenValidator;
-import com.user.auth.security.authentication.jwt.contract.adapter.AsymmetricTokenParserAdapter;
-import com.user.auth.security.authentication.jwt.contract.adapter.AsymmetricTokenValidatorAdapter;
 import com.user.auth.security.authentication.jwt.symmetric.HS256JwtService;
 
 import lombok.RequiredArgsConstructor;

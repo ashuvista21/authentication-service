@@ -97,7 +97,11 @@ public class AuthController {
     	String token = JwtUtils.extractTokenFromHeader(authHeader) ;
     	
     	boolean isValid = authService.verifyToken(token) ;
-        boolean active = introspectionService.introspect(token) ;
+
+    	boolean active = false ;
+    	// short circuit to avoid calculation when signature validation already failed
+    	if(isValid)
+    		active = introspectionService.introspect(token) ;
 
         return ResponseEntity.ok(ApiResponse.<IntrospectionResponse>builder()
         		.success(true)

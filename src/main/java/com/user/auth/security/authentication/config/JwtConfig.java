@@ -26,7 +26,6 @@ import javax.crypto.SecretKey;
 @RequiredArgsConstructor
 public class JwtConfig {
 	
-	
 	private final JwtProperties jwtProperties ;
 	private final ResourceLoader resourceLoader ;
 	

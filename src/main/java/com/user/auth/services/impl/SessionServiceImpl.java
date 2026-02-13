@@ -4,9 +4,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.user.auth.config.AuthConfigProperties;
 import com.user.auth.entities.Session;
 import com.user.auth.exceptions.auth.InvalidTokenIdentifierException;
 import com.user.auth.exceptions.auth.MaximumLimitReachedException;
@@ -22,8 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SessionServiceImpl implements SessionService {
 	
-	@Value("${auth.max-active-sessions}")
-    private int MAX_ACTIVE_SESSIONS ;
+    private final AuthConfigProperties authConfigProperties ;
 	
 	private final SessionRepository sessionRepository ;
 	private final AccessTokenService accessTokenService ;
@@ -43,10 +42,11 @@ public class SessionServiceImpl implements SessionService {
 		        }) ;
 		
 		// 2️⃣ Enforce max active sessions (after revocation)
-	    long activeSessions = sessionRepository.countActiveSessions(userId);
-	    if (activeSessions >= MAX_ACTIVE_SESSIONS) {
+	    long activeSessions = sessionRepository.countActiveSessions(userId) ;
+	    long maxSessionAllowed = authConfigProperties.getMaxActiveSessions() ;
+	    if (activeSessions >= maxSessionAllowed) {
 	        throw new MaximumLimitReachedException(
-	            "Maximum number of active logins reached (" + MAX_ACTIVE_SESSIONS + ")"
+	            "Maximum number of active logins reached (" + maxSessionAllowed + ")"
 	        ) ;
 	    }
 
