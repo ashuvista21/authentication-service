@@ -1,19 +1,18 @@
-package com.user.auth.security.authentication.jwt.contract.adapter;
+package com.user.auth.security.authentication.jwt.adapter;
 
 import java.util.Date;
 
+import com.nimbusds.jwt.JWTClaimsSet;
 import com.user.auth.security.authentication.jwt.contract.TokenClaims;
 
-import io.jsonwebtoken.Claims;
-
-public class JjwtClaimsAdapter implements TokenClaims{
+public class NimbusClaimsAdapter implements TokenClaims {
 	
-	private final Claims claims ;
+	private final JWTClaimsSet claims ;
 	
-	public JjwtClaimsAdapter(Claims claims) {
-        this.claims = claims ;
+	public NimbusClaimsAdapter(JWTClaimsSet claims) {
+        this.claims = claims;
     }
-	
+
 	@Override
 	public String getSubject() {
 		return claims.getSubject() ;
@@ -21,7 +20,7 @@ public class JjwtClaimsAdapter implements TokenClaims{
 
 	@Override
 	public Date getExpiration() {
-		return claims.getExpiration() ;
+		return claims.getExpirationTime() ;
 	}
 
 	@Override
@@ -31,7 +30,7 @@ public class JjwtClaimsAdapter implements TokenClaims{
 
 	@Override
 	public Object get(String key) {
-		return claims.get(key) ;
+		return claims.getClaim(key) ;
 	}
 
 }

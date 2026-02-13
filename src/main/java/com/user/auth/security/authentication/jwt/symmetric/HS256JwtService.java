@@ -10,30 +10,31 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.user.auth.security.authentication.jwt.adapter.JjwtClaimsAdapter;
 import com.user.auth.security.authentication.jwt.contract.TokenClaims;
 import com.user.auth.security.authentication.jwt.contract.TokenGenerator;
 import com.user.auth.security.authentication.jwt.contract.TokenParser;
 import com.user.auth.security.authentication.jwt.contract.TokenValidator;
-import com.user.auth.security.authentication.jwt.contract.adapter.JjwtClaimsAdapter;
+import com.user.auth.security.authentication.service.TokenIntrospectionService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class HS256JwtService implements TokenGenerator, TokenParser, TokenValidator {
 
 	//private static final String SECRET = "your-very-secure-secret-key-your-very-secure-secret-key"; 
     // must be at least 32 chars (256-bit) for HS256
 	// ✅ Now using SecretKey directly (generated once & stored securely)
-    private final SecretKey secretKey;
+    private final SecretKey secretKey ;
 
-    private static final long EXPIRATION_TIME = 1000 * 60 * 60; // 1 hour
-
-    public HS256JwtService(SecretKey secretKey) {
-        this.secretKey = secretKey;
-    }
+    private static final long EXPIRATION_TIME = 1000 * 60 * 60 ; // 1 hour
+    
+    private TokenIntrospectionService introspectionService ;
 
 	@Override
 	public boolean isTokenValid(String token) {
@@ -99,4 +100,9 @@ public class HS256JwtService implements TokenGenerator, TokenParser, TokenValida
 	private Date extractExpiration(String token) {
         return extractClaim(token).getExpiration() ;
     }
+
+	@Override
+	public boolean introspectToken(String token) {
+		return isTokenValid(token) && introspectionService.introspect(token) ;
+	}
 }

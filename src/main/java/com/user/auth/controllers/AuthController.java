@@ -8,18 +8,22 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.user.auth.config.JwtProperties;
 import com.user.auth.dtos.ApiResponse;
+import com.user.auth.dtos.IntrospectionResponse;
 import com.user.auth.dtos.JwkSet;
 import com.user.auth.dtos.JwtResponse;
 import com.user.auth.dtos.LoginRequest;
 import com.user.auth.entities.GrantTypes;
 import com.user.auth.security.authentication.jwt.contract.TokenClaims;
+import com.user.auth.security.authentication.jwt.utils.JwtUtils;
 import com.user.auth.security.authentication.service.AuthService;
+import com.user.auth.security.authentication.service.TokenIntrospectionService;
 import com.user.auth.validation.PasswordFlow;
 import com.user.auth.validation.RefreshTokenFlow;
 
@@ -35,6 +39,7 @@ public class AuthController {
 	private final AuthService authService;
 	private final Validator validator ;
 	private final JwtProperties jwtProperties ;
+	private final TokenIntrospectionService introspectionService ;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<JwtResponse>> login(@Valid @RequestBody LoginRequest request) {
@@ -62,7 +67,7 @@ public class AuthController {
 
     @GetMapping("/validate-token")
     public ResponseEntity<ApiResponse<TokenClaims>> validateToken(@RequestParam String token) {
-        boolean isValid = authService.verifyToken(token);
+        boolean isValid = authService.verifyToken(token) ;
 
         if (isValid) {
             return ResponseEntity.ok(ApiResponse.<TokenClaims>builder()
@@ -70,7 +75,7 @@ public class AuthController {
                     .status(HttpStatus.OK)
                     .message(Arrays.asList("Token is valid"))
                     .data(authService.getClaims(token))
-                    .build());
+                    .build()) ;
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.<TokenClaims>builder()
@@ -78,12 +83,31 @@ public class AuthController {
                             .status(HttpStatus.UNAUTHORIZED)
                             .message(Arrays.asList("Invalid or expired token"))
                             .data(null)
-                            .build());
+                            .build()) ;
         }
     }
     
     @GetMapping("/.well-known/jwks.json")
     public ResponseEntity<JwkSet> getJwks() {
         return ResponseEntity.ok(authService.getRSAPublicKey(jwtProperties.algorithm())) ;
+    }
+    
+    @PostMapping("/introspect")
+    public ResponseEntity<ApiResponse<IntrospectionResponse>> introspectToken(@RequestHeader("Authorization") String authHeader) {
+    	String token = JwtUtils.extractTokenFromHeader(authHeader) ;
+    	
+    	boolean isValid = authService.verifyToken(token) ;
+
+    	boolean active = false ;
+    	// short circuit to avoid calculation when signature validation already failed
+    	if(isValid)
+    		active = introspectionService.introspect(token) ;
+
+        return ResponseEntity.ok(ApiResponse.<IntrospectionResponse>builder()
+        		.success(true)
+        		.status(HttpStatus.OK)
+        		.message(Arrays.asList("Token Introspection Successfull"))
+        		.data(new IntrospectionResponse(isValid && active))
+        		.build()) ;
     }
 }

@@ -1,4 +1,4 @@
-package com.user.auth.security.authentication.jwt.contract.adapter;
+package com.user.auth.security.authentication.jwt.adapter;
 
 import java.util.function.Function;
 

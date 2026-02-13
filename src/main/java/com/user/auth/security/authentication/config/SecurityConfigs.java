@@ -1,6 +1,5 @@
 package com.user.auth.security.authentication.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,9 +17,6 @@ import com.user.auth.security.authentication.handler.JwtAuthEntryPoint;
 
 @Configuration
 public class SecurityConfigs {
-	
-	@Value("${jwt.algorithm}")
-	private String algorithm ;
 	
 	@Bean
 	PasswordEncoder passwordEncoder() {
