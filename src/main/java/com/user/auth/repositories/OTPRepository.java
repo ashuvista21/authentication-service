@@ -15,7 +15,7 @@ import com.user.auth.entities.OTPPurpose;
 @Repository
 public interface OTPRepository extends JpaRepository<OTP, UUID>{
 	
-	@Modifying
+	@Modifying(clearAutomatically = true)
     @Query("""
         update OTP o
            set o.verifiedAt = :now

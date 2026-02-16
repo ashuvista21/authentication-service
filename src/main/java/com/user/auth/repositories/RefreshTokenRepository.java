@@ -19,7 +19,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     Optional<RefreshToken> findBySidAndRevokedAtIsNull(UUID sid) ;
     Optional<RefreshToken> findByRefreshToken(UUID refreshToken) ;
     
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("""
      update RefreshToken r
         set r.revokedAt = :now

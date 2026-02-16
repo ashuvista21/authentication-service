@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.user.auth.entities.RefreshToken;
 import com.user.auth.entities.Session;
@@ -14,7 +16,6 @@ import com.user.auth.exceptions.auth.InvalidTokenIdentifierException;
 import com.user.auth.repositories.RefreshTokenRepository;
 import com.user.auth.services.RefreshTokenService;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -32,6 +33,14 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
         // Reuse attack detection
         if (refreshToken.getRevokedAt() != null || refreshToken.getExpiresAt().isBefore(now)) {
+        	/*
+        	 * In serious systems, reuse detection should also:
+        	 * Revoke entire session
+        	 * Revoke all tokens of session
+        	 * Force re-login
+        	 * Right now you only throw exception.
+        	 * For now acceptable — just keep in mind.
+        	 */
             throw new InvalidTokenIdentifierException("Refresh token reuse detected") ;
         }
         
@@ -59,7 +68,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 		        		    .issuedAt(Instant.now())
 		        		    .expiresAt(Instant.now().plus(REFRESH_TTL))
 		        		    .build() ;
-		        	
+		        	// Not revoking previous refresh token
+		        	// check this
 		            return refreshTokenRepository.save(newToken) ;
 		        })
 		        .orElseGet(() -> {
@@ -95,12 +105,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 	}
 	
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.MANDATORY)
 	public void revoke(UUID sid) {
 		refreshTokenRepository.findBySidAndRevokedAtIsNull(sid)
 			.ifPresent(rt -> {
 				rt.setRevokedAt(Instant.now()) ;
-				refreshTokenRepository.save(rt) ;
+				//dirty checking updates automatically
+				//refreshTokenRepository.save(rt) ;
 			}) ;
 	}
 	

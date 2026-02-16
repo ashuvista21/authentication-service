@@ -7,8 +7,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.user.auth.dtos.EmailEvent;
+import com.user.auth.entities.EventTypes;
 import com.user.auth.entities.OTP;
 import com.user.auth.entities.OTPPurpose;
 import com.user.auth.exceptions.otp.InvalidOtpException;
@@ -19,7 +21,6 @@ import com.user.auth.security.userdetails.CustomUserDetails;
 import com.user.auth.security.userdetails.CustomUserDetailsService;
 import com.user.auth.services.OTPService;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -44,18 +45,18 @@ public class OTPServiceImpl implements OTPService {
 		
 		OTP otpEntity = OTP.builder().userId(userId)
 			.otpHash(otpHash)
-			.purpose(OTPPurpose.PASSWORD_RESET)
+			.purpose(OTPPurpose.OTP_PASSWORD_RESET)
 			.attempts(0)
 			.build() ;
 		
 		otpRepository.save(otpEntity) ;
 		
 		EmailEvent emailEvent = EmailEvent.builder().eventId(UUID.randomUUID().toString())
-			.eventType(OTPPurpose.PASSWORD_RESET.toString())
+			.eventType(EventTypes.OTP.toString())
 			.recipient(username)
-			.template("OTP_SENT")
+			.template(OTPPurpose.OTP_PASSWORD_RESET.toString())
 			.timestamp(Instant.now())
-			.variables(Map.of("OTP", otp))
+			.variables(Map.of("name", userDetails.getName(), "otp", otp, "expiryMinutes", 10))
 			.build() ;
 
 		return emailEvent ;
@@ -81,7 +82,18 @@ public class OTPServiceImpl implements OTPService {
 
 		if (!passwordEncoder.matches(code, otpEntity.getOtpHash())) {
 		    otpEntity.setAttempts(otpEntity.getAttempts() + 1) ;
-		    otpRepository.save(otpEntity) ;
+		    //removing below line since method is under @Transactional,
+		    //so hibernate will do dirty checking,
+		    //and it finds changes in the entity and update the same in db also
+		    //below is what after @Transactional boundary ends
+		    /*
+		     *	Transaction ends →
+			 *  Flush happens →
+			 *  Hibernate compares old vs new state →
+			 *  Generates UPDATE query →
+			 *  Commits
+		     */
+		    //otpRepository.save(otpEntity) ;
 		    throw new InvalidOtpException("Invalid OTP") ; //400
 		}
 		

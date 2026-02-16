@@ -42,7 +42,7 @@ public interface SessionRepository extends JpaRepository<Session, UUID> {
     	""")
     List<UUID> findActiveSessionSidsByUserId(@Param("userId") UUID userId) ;
     
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("""
      update Session s
         set s.revokedAt = :now

@@ -52,7 +52,7 @@ public class PasswordResetController {
 	@PostMapping("/veify")
 	public ResponseEntity<ApiResponse<Void>> passwordVerifyOTP(@Valid @RequestBody OTPVerifyRequest otpVerifyRequest) {
 		
-		otpService.validateOTP(otpVerifyRequest.identifier(), otpVerifyRequest.otp(), OTPPurpose.PASSWORD_RESET) ;
+		otpService.validateOTP(otpVerifyRequest.identifier(), otpVerifyRequest.otp(), OTPPurpose.OTP_PASSWORD_RESET) ;
 		
 		CustomUserDetails userByUsername = userDetailsService.loadUserByUsername(otpVerifyRequest.identifier()) ;
 		userService.resetPassword(userByUsername.getUuid(), otpVerifyRequest.newPassword()) ;
