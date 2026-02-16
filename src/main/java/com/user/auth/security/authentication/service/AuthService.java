@@ -14,6 +14,7 @@ import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.user.auth.dtos.JwkSet;
 import com.user.auth.dtos.LoginRequest;
@@ -57,6 +58,7 @@ public class AuthService {
     private final SessionService sessionService ;
 
  // ✅ Spring-way using AuthenticationManager
+    @Transactional
     public Pair<String, String> login(LoginRequest request, String alg) { 	
     	if(request.getGrantType().equals(GrantTypes.PASSWORD)) {
     		return loginWithPassword(request, alg) ;
@@ -95,7 +97,7 @@ public class AuthService {
         Session session = sessionService.findOrCreateSession(UUID.fromString(userDetails.getUuid()), request.getDeviceId()) ;
 
         RefreshToken refreshToken = refreshTokenService.rotateWithSession(session) ;
-        
+
         AccessToken accessToken = accessTokenService.createAccessToken(session) ;
         
         TokenGenerator tokenGenerator = jwtServiceFactory.getTokenGenerator(JwtAlgorithm.valueOf(alg)) ;
@@ -153,6 +155,7 @@ public class AuthService {
         ) ;
     }
     
+    @Transactional
     public int logout(LogoutScope scope, String sid) {
     	UUID actualSid = UUID.fromString(sid) ;
     	

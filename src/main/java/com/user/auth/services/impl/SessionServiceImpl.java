@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.user.auth.config.AuthConfigProperties;
 import com.user.auth.entities.Session;
@@ -15,7 +17,6 @@ import com.user.auth.services.AccessTokenService;
 import com.user.auth.services.RefreshTokenService;
 import com.user.auth.services.SessionService;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -62,19 +63,21 @@ public class SessionServiceImpl implements SessionService {
 	}
 	
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.MANDATORY)
     public void revokeSession(UUID sid) {
         sessionRepository.findById(sid).ifPresent(session -> {
-            session.setRevokedAt(Instant.now());
-            sessionRepository.save(session);
-        });
+            session.setRevokedAt(Instant.now()) ;
+            //dirty checking
+            //sessionRepository.save(session) ;
+        }) ;
     }
 	
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.MANDATORY)
     public void revokeSession(Session session) {
 		session.setRevokedAt(Instant.now()) ;
-        sessionRepository.save(session) ;   
+		//dirty checking
+        //sessionRepository.save(session) ;
     }
 	
 	@Override

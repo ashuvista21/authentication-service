@@ -11,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -50,6 +51,9 @@ public class OTP {
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
+    
+    @Version
+    private Long version;
 
     @PrePersist
     void onCreate() {

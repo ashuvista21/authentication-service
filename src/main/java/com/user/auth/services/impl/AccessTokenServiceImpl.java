@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.user.auth.entities.AccessToken;
 import com.user.auth.entities.Session;
@@ -13,7 +15,6 @@ import com.user.auth.exceptions.auth.InvalidTokenIdentifierException;
 import com.user.auth.repositories.AccessTokenRepository;
 import com.user.auth.services.AccessTokenService;
 
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -25,7 +26,8 @@ public class AccessTokenServiceImpl implements AccessTokenService {
 	private final AccessTokenRepository accessTokenRepository ;
 	
 	@Override
-	@Transactional
+	//not mandatory
+	//@Transactional
 	public AccessToken createAccessToken(Session session) {
 		
 		return accessTokenRepository.save(
@@ -39,7 +41,8 @@ public class AccessTokenServiceImpl implements AccessTokenService {
 	}
 
 	@Override
-	@Transactional
+	//not mandatory
+	//@Transactional
 	public AccessToken createAccessToken() {
 		return accessTokenRepository.save(
 		        AccessToken.builder()
@@ -51,12 +54,12 @@ public class AccessTokenServiceImpl implements AccessTokenService {
 	}
 	
 	@Override
-	@Transactional
+	@Transactional(propagation = Propagation.MANDATORY)
 	public void revoke(UUID sid) {
 		accessTokenRepository.findBySid(sid)
 			.ifPresent(at -> {
 				at.setRevokedAt(Instant.now()) ;
-				accessTokenRepository.save(at) ;
+				//accessTokenRepository.save(at) ;
 			}) ;
 	}
 	

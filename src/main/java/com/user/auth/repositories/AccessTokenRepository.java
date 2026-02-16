@@ -16,7 +16,7 @@ import com.user.auth.entities.AccessToken;
 @Repository
 public interface AccessTokenRepository extends JpaRepository<AccessToken, UUID> {
 	
-	@Modifying
+	@Modifying(clearAutomatically = true)
     @Query("""
         UPDATE AccessToken a
            SET a.revokedAt = :revokedAt
